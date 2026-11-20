@@ -1,0 +1,29 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="_header.jspf" %>
+<section class="page-heading compact-heading"><div><span class="eyebrow">CLASSROOM WORKSPACE</span><h1>Take attendance</h1><p>Choose a class, create a session and record each student's status.</p></div><span class="live-tag"><span></span> LIVE RECORDING</span></section>
+<section class="attendance-toolbar panel">
+    <form method="get" action="${ctx}/app/attendance" class="course-select-form"><div class="field field-grow"><label for="courseId">SELECT COURSE</label><select id="courseId" name="courseId" required><c:forEach items="${courses}" var="course"><option value="${course.id}" ${selectedCourse.id eq course.id ? 'selected' : ''}><c:out value="${course.course_code}"/> · <c:out value="${course.course_name}"/></option></c:forEach></select></div><button class="btn btn-secondary" type="submit">Load class</button></form>
+    <c:if test="${empty courses}"><div class="empty-inline">No courses are assigned to your account. Ask an administrator to assign a course.</div></c:if>
+</section>
+<c:if test="${not empty selectedCourse}">
+<form method="post" action="${ctx}/app/attendance" class="attendance-form"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
+    <input type="hidden" name="courseId" value="${selectedCourse.id}">
+    <section class="panel session-info-panel"><div class="session-course-info"><span class="course-code-large"><c:out value="${selectedCourse.course_code}"/></span><div><h3><c:out value="${selectedCourse.course_name}"/></h3><p><c:out value="${selectedCourse.department}"/> · Semester <c:out value="${selectedCourse.semester}"/></p></div></div>
+        <div class="session-fields"><div class="field"><label for="sessionDate">SESSION DATE</label><input type="date" id="sessionDate" name="sessionDate" value="<c:out value='${not empty editingSession ? editingSession.session_date : today}'/>" required></div><div class="field session-topic-field"><label for="topic">TOPIC / SESSION TITLE</label><input type="text" id="topic" name="topic" value="<c:out value='${not empty editingSession ? editingSession.topic : ""}'/>" maxlength="180" placeholder="e.g. Introduction to linked lists" required></div></div>
+        <c:if test="${not empty editingSession}"><div class="edit-session-note">Editing an existing session. Saving will update its attendance records.</div></c:if>
+    </section>
+    <section class="panel attendance-roster-panel"><div class="panel-heading"><div><span class="eyebrow">CLASS ROSTER</span><h3>Mark student status <span class="heading-count"><c:out value="${students.size()}"/> students</span></h3></div><div class="roster-tools"><input class="roster-search" type="search" placeholder="Find a student..." data-table-search="attendanceTable"><span class="roster-date"><c:out value="${today}"/></span></div></div>
+        <div class="attendance-bulk-bar"><span>Quick mark:</span><button type="button" class="bulk-choice bulk-present" data-bulk-status="PRESENT">All present</button><button type="button" class="bulk-choice bulk-absent" data-bulk-status="ABSENT">All absent</button><span class="bulk-hint">You can adjust each student individually.</span></div>
+        <div class="table-wrap"><table id="attendanceTable"><thead><tr><th>STUDENT</th><th>ROLL NUMBER</th><th>STATUS</th><th>REMARKS</th></tr></thead><tbody>
+        <c:forEach items="${students}" var="student"><tr data-search-row><td><div class="person-cell"><span class="person-avatar"><c:out value="${student.full_name.substring(0,1)}"/></span><span><b><c:out value="${student.full_name}"/></b><small class="cell-sub"><c:out value="${student.email}"/></small></span></div></td><td><span class="code-chip"><c:out value="${student.roll_no}"/></span></td><td><select class="status-select status-select-${student.status}" name="status_${student.student_id}" aria-label="Attendance status for <c:out value='${student.full_name}'/>"><option value="PRESENT" ${student.status eq 'PRESENT' ? 'selected' : ''}>Present</option><option value="ABSENT" ${student.status eq 'ABSENT' or empty student.status ? 'selected' : ''}>Absent</option><option value="LATE" ${student.status eq 'LATE' ? 'selected' : ''}>Late</option><option value="EXCUSED" ${student.status eq 'EXCUSED' ? 'selected' : ''}>Excused</option></select></td><td><input class="remarks-input" name="remarks_${student.student_id}" maxlength="255" value="<c:out value='${student.remarks}'/>" placeholder="Optional note"></td></tr></c:forEach>
+        <c:if test="${empty students}"><tr><td colspan="4" class="empty-cell">No students are enrolled in this course yet. Check the department and semester settings.</td></tr></c:if>
+        </tbody></table></div>
+        <div class="attendance-submit-row"><span class="form-hint">Saved records can be reopened from recent sessions.</span><button class="btn btn-primary" type="submit" ${empty students ? 'disabled' : ''}>Save attendance <span>→</span></button></div>
+    </section>
+</form>
+<section class="panel section-panel"><div class="panel-heading"><div><span class="eyebrow">SESSION HISTORY</span><h3>Recent sessions</h3></div><span class="pill pill-soft">Last 12 sessions</span></div><div class="table-wrap"><table><thead><tr><th>DATE</th><th>SESSION</th><th>RECORDS</th><th>ACTION</th></tr></thead><tbody>
+<c:forEach items="${sessions}" var="session"><tr><td><c:out value="${session.session_date}"/></td><td><b><c:out value="${session.topic}"/></b></td><td><span class="count-chip"><c:out value="${session.marked_count}"/> marked</span></td><td><a class="text-link" href="${ctx}/app/attendance?courseId=${selectedCourse.id}&sessionId=${session.id}">Review / edit →</a></td></tr></c:forEach>
+<c:if test="${empty sessions}"><tr><td colspan="4" class="empty-cell">No sessions have been recorded for this course.</td></tr></c:if>
+</tbody></table></div></section>
+</c:if>
+<%@ include file="_footer.jspf" %>

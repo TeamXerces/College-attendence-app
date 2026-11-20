@@ -1,0 +1,12 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="_header.jspf" %>
+<section class="page-heading compact-heading"><div><span class="eyebrow">MY ACADEMICS</span><h1>My attendance</h1><p>Your course-wise attendance and complete session history.</p></div><span class="pill pill-soft">Personal record</span></section>
+<section class="course-progress-grid">
+<c:forEach items="${courseAttendance}" var="course"><article class="panel course-attendance-card"><div class="course-progress-title"><div><b><c:out value="${course.course_code}"/></b><span><c:out value="${course.course_name}"/></span></div><strong class="${course.percentage lt 75 ? 'text-warning' : 'text-positive'}"><c:choose><c:when test="${not empty course.percentage}"><c:out value="${course.percentage}"/>%</c:when><c:otherwise>—</c:otherwise></c:choose></strong></div><div class="progress-track"><div class="progress-fill ${course.percentage lt 75 ? 'progress-warning' : ''}" style="width:${empty course.percentage ? 0 : course.percentage}%"></div></div><div class="progress-foot"><span><c:out value="${course.attended}" default="0"/> / <c:out value="${course.sessions}" default="0"/> sessions</span><c:if test="${course.percentage lt 75}"><span class="warning-label">Below 75% target</span></c:if></div></article></c:forEach>
+<c:if test="${empty courseAttendance}"><div class="empty-state"><h3>No course data available</h3><p>Your attendance will appear here after you are enrolled and sessions are recorded.</p></div></c:if>
+</section>
+<section class="panel section-panel"><div class="panel-heading"><div><span class="eyebrow">FULL HISTORY</span><h3>Attendance records</h3></div><span class="pill pill-soft"><c:out value="${records.size()}"/> entries</span></div><div class="table-wrap"><table><thead><tr><th>DATE</th><th>COURSE</th><th>SESSION / TOPIC</th><th>STATUS</th><th>REMARKS</th></tr></thead><tbody>
+<c:forEach items="${records}" var="record"><tr><td><c:out value="${record.session_date}"/></td><td><b><c:out value="${record.course_code}"/></b><small class="cell-sub"><c:out value="${record.course_name}"/></small></td><td><c:out value="${record.topic}"/></td><td><span class="status-pill status-${record.status}"><c:out value="${record.status}"/></span></td><td><c:out value="${record.remarks}" default="—"/></td></tr></c:forEach>
+<c:if test="${empty records}"><tr><td colspan="5" class="empty-cell">No attendance records have been added yet.</td></tr></c:if>
+</tbody></table></div></section>
+<%@ include file="_footer.jspf" %>

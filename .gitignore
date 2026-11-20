@@ -1,0 +1,16 @@
+# Maven
+target/
+*.war
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Local secrets / environment
+.env
+.env.*
+*.local.properties

@@ -1,0 +1,7 @@
+        </div>
+        <footer class="app-footer"><span>© <%= java.time.Year.now().getValue() %> CampusFlow</span><span>College Attendance Management System <i>·</i> Built with Java & JDBC</span></footer>
+    </main>
+</div>
+<script src="${pageContext.request.contextPath}/assets/app.js"></script>
+</body>
+</html>
